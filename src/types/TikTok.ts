@@ -23,6 +23,8 @@ export interface Proxy {
 export interface Options {
     proxy?: string[] | string;
     proxyFile?: string;
+    luminatiUsername?: string;
+    luminatiPassword?: string;
     event?: boolean;
     by_user_id?: boolean;
     download?: boolean;
