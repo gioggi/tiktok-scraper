@@ -97,10 +97,11 @@ export class Downloader {
             if (proxy.proxy && proxy.socks) {
                 r = request.defaults({ agent: (proxy.proxy as unknown) as Agent });
             }
+
             r.get({
                 url: item.videoUrlNoWaterMark ? item.videoUrlNoWaterMark : item.videoUrl,
                 headers: {
-                    'user-agent': this.userAgent,
+                    'user-agent': 'okhttp',
                 },
             })
                 .on('response', response => {
@@ -182,9 +183,6 @@ export class Downloader {
         const proxy = this.getProxy;
         const options = ({
             uri: post.videoUrlNoWaterMark,
-            headers: {
-                'user-agent': this.userAgent,
-            },
             encoding: null,
             ...(proxy.proxy && proxy.socks ? { agent: proxy.proxy } : {}),
             ...(proxy.proxy && !proxy.socks ? { proxy: `http://${proxy.proxy}/` } : {}),
