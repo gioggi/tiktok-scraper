@@ -35,6 +35,7 @@ const startScraper = async argv => {
         if (argv.async) {
             argv.asyncBulk = argv.async;
         }
+
         const scraper = await TikTokScraper[argv.type](argv.input, argv);
 
         if (scraper.zip) {
@@ -55,6 +56,9 @@ const startScraper = async argv => {
         }
         if (scraper.table) {
             console.table(scraper.table);
+        }
+        if (argv.cli && argv.type === 'getUserProfileInfo') {
+            console.log(scraper);
         }
     } catch (error) {
         console.log(error);
@@ -93,6 +97,9 @@ yargs
     .command('from-file [file] [async]', 'Scrape users, hashtags, music, videos mentioned in a file. 1 value per 1 lin', {}, argv => {
         startScraper(argv);
     })
+    .command('userprofile [id]', 'Show user metadata', {}, argv => {
+        startScraper(argv);
+    })
     .options({
         help: {
             alias: 'h',
@@ -115,6 +122,16 @@ yargs
         'proxy-file': {
             default: '',
             describe: 'Use proxies from a file. Scraper will use random proxies from the file per each request. 1 line 1 proxy.',
+        },
+        luminatiUsername: {
+            alias: 'lUsr',
+            default: '',
+            describe: 'Set user for Luminati proxy',
+        },
+        luminatiPassword: {
+            alias: 'lPwd',
+            default: '',
+            describe: 'Set password for Luminati proxy',
         },
         download: {
             alias: 'd',
@@ -215,6 +232,18 @@ yargs
             }
         }
 
+        if (argv.proxyFile && (argv.luminatiUsername || argv.luminatiPassword)) {
+            throw new Error(`--proxy-file is incompatible with luminati credentials`);
+        }
+
+        if (argv.proxy && (argv.luminatiUsername || argv.luminatiPassword)) {
+            throw new Error(`--proxy is incompatible with luminati credentials`);
+        }
+
+        if ((!argv.luminatiUsername && argv.luminatiPassword) || (argv.luminatiUsername && !argv.luminatiPassword)) {
+            throw new Error(`luminati credentials need --luminatiUsername and --luminatiPassword`);
+        }
+
         if (argv.hd && !argv.noWaterMark && argv._[0] !== 'video') {
             throw new Error(`--hd option won't work without -w option`);
         }
@@ -242,9 +271,10 @@ yargs
             if (!argv.download && !argv.filetype) {
                 argv.filetype = 'csv';
             }
-            if (!/^https:\/\/(www|v[a-z]{1})+\.tiktok\.com\/(\w.+|@(.\w.+)\/video\/(\d+))$/.test(argv.id)) {
-                throw new Error('Enter a valid TikTok video URL. For example: https://www.tiktok.com/@tiktok/video/6807491984882765062');
-            }
+        }
+
+        if (argv._[0] === 'userprofile') {
+            argv._[0] = 'getUserProfileInfo';
         }
 
         return true;

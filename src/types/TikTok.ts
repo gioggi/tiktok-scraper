@@ -10,6 +10,7 @@ export type ScrapeType =
     | 'discover_music'
     | 'single_user'
     | 'single_hashtag'
+    | 'single_music'
     | 'signature'
     | 'video_meta'
     | 'video';
@@ -22,6 +23,8 @@ export interface Proxy {
 export interface Options {
     proxy?: string[] | string;
     proxyFile?: string;
+    luminatiUsername?: string;
+    luminatiPassword?: string;
     event?: boolean;
     by_user_id?: boolean;
     download?: boolean;
